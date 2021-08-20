@@ -26,7 +26,7 @@ const UploadForm = () => {
     const formData = new FormData();
     formData.append("image", file);
     try {
-      const res = await axios.post("/upload", formData, {
+      const res = await axios.post("/images", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (e) => {
           // 업로드 진행사항을 표시하게 도와주는 axios 옵셤

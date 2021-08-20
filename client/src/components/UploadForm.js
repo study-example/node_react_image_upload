@@ -83,6 +83,3 @@ const UploadForm = () => {
 };
 
 export default UploadForm;
-
-//admin
-//iOKpInqmSTxZtWyE

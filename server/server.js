@@ -49,11 +49,11 @@ mongoose
       "/images",
       upload.single("image"),
       async (req, res) => {
-        await new Image({
+        const uploadedImg = await new Image({
           key: req.file.filename,
           originalFileName: req.file.originalname,
         }).save();
-        res.json(image);
+        res.json(uploadedImg);
       }
     );
 

@@ -55,15 +55,10 @@ userRouter.patch("/login", async (req, res) => {
 
 userRouter.patch("/logout", async (req, res) => {
   try {
-    const { sessionid } = req.headers;
-    if (!mongoose.isValidObjectId(sessionid)) {
-      throw new Error("invalid sessionid");
-    } // mongoose에서 데이터 생성시 자체적으로 생성하는 _id의 벨리데이션 체크
-    const user = await User.findOne({ "sessions._id": sessionid });
-    if (!user) throw new Error("invalid sessionid");
+    if (!req.user) throw new Error("invalid sessionid");
     await User.updateOne(
-      { _id: user.id },
-      { $pull: { sessions: { _id: sessionid } } }
+      { _id: req.user._id },
+      { $pull: { sessions: { _id: req.headers.sessionid } } }
     ); // db에 저장된 해당 세션을 제거
     res.json({ message: "로그아웃 성공" });
   } catch (err) {

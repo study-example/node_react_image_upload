@@ -11,7 +11,6 @@ const ToolBar = () => {
         <span style={{ float: "right" }}>로그인</span>
       </Link>
       <Link to="/auth/register">
-        {" "}
         <span style={{ float: "right", marginRight: 15 }}>회원가입</span>
       </Link>
     </div>

@@ -29,7 +29,7 @@ const ToolBar = () => {
       </Link>
       {me ? (
         <span onClick={logoutHandler} style={{ float: "right" }}>
-          로그아웃
+          로그아웃({me.name})
         </span>
       ) : (
         <>

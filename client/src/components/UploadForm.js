@@ -3,7 +3,7 @@ import axios from "axios";
 import "./UploadForm.css";
 import { toast } from "react-toastify";
 import ProgressBar from "./ProgressBar";
-import { ImageContext } from "../context/imageContext";
+import { ImageContext } from "../context/ImageContext";
 
 const UploadForm = () => {
   const defaultFileName = "이미지 파일을 업로드 해주세요.";

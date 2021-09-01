@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { ImageContext } from "../context/imageContext";
+import { ImageContext } from "../context/ImageContext";
 
 const ImageList = () => {
   const [images] = useContext(ImageContext);

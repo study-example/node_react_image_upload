@@ -18,6 +18,7 @@ const LoginPage = () => {
         throw new Error("입력하신 정보가 올바르지 않습니다.");
 
       const result = await axios.patch("/users/login", { username, password });
+      console.log({ result });
       setMe({
         name: result.data.name,
         sessionId: result.data.sessionId,
@@ -26,8 +27,8 @@ const LoginPage = () => {
       history.push("/");
       toast.success("로그인");
     } catch (err) {
-      toast.error(err.message);
-      console.error(err);
+      console.error(err.response);
+      toast.error(err.response.data.message);
     }
   };
 

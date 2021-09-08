@@ -8,6 +8,7 @@ const authenticate = async (req, res, next) => {
   if (!user) return next();
   req.user = user; // 로그인 성공시 req.user에 user 정보 저장
   console.log("로그인된 계정");
+  console.log({ user: req.user });
   return next();
 };
 

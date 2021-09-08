@@ -70,7 +70,6 @@ userRouter.patch("/logout", async (req, res) => {
 userRouter.get("/me", (req, res) => {
   try {
     if (!req.user) throw new Error("권한이 없습니다.");
-    console.log({ req });
     res.json({
       message: "success",
       sessionId: req.headers.sessionid,

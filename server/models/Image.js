@@ -3,6 +3,12 @@ const mongoose = require("mongoose");
 // jpa의 엔티티처럼 스키마를 콩구스를 통해서 정의한다.
 const ImageSchema = new mongoose.Schema(
   {
+    user: {
+      _id: { type: mongoose.Types.ObjectId, required: true, index: true },
+      name: { type: String, required: true },
+      username: { type: String, requried: true },
+    },
+    public: { type: Boolean, required: true, default: false },
     key: { type: String, required: true },
     originalFileName: { type: String, required: true },
   },

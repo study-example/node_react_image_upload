@@ -6,6 +6,7 @@ const ImageList = () => {
 
   const imgList = images.map((image) => (
     <img
+      alt=""
       key={image.key}
       style={{ width: "100%" }}
       src={`http://localhost:5000/uploads/${image.key}`}

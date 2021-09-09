@@ -8,7 +8,7 @@ import { ImageContext } from "../context/ImageContext";
 const UploadForm = () => {
   const { images, setImages, myImages, setMyimages } = useContext(ImageContext);
   const defaultFileName = "이미지 파일을 업로드 해주세요.";
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState(null);
   const [imgSrc, setImgSrc] = useState(null); // 업로드 할 이미지 미리보기
   const [fileName, setFileName] = useState(defaultFileName);
   const [percent, setPercent] = useState(0); // 이미지 업로드 진행 퍼센트
@@ -16,8 +16,9 @@ const UploadForm = () => {
 
   //파일 선택시 이벤트 헨들러
   const imageSelectHandler = (e) => {
-    const imageFile = e.target.files[0];
-    setFile(imageFile);
+    const imageFiles = e.target.files;
+    setFiles(imageFiles);
+    const imageFile = imageFiles[0];
     setFileName(imageFile.name); // 업로드할 파일 정보들
     const fileReader = new FileReader(); // 업로드할 이미지 미리보기
     fileReader.readAsDataURL(imageFile);
@@ -27,22 +28,24 @@ const UploadForm = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("image", file);
+    for (let file of files) {
+      formData.append("image", file);
+    }
+
     formData.append("public", isPublic);
     try {
       const res = await axios.post("/images", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         onUploadProgress: (e) => {
           // 업로드 진행사항을 표시하게 도와주는 axios 옵셤
-          console.log(e);
           setPercent(Math.round((100 * e.loaded) / e.total));
         },
       });
 
       if (isPublic) {
-        setImages([...images, res.data]);
+        setImages([...images, ...res.data]);
       } else {
-        setMyimages([...myImages, res.data]);
+        setMyimages([...myImages, ...res.data]);
       }
 
       toast.success("이미지 업로드 성공!");
@@ -73,6 +76,7 @@ const UploadForm = () => {
         <input
           id="image"
           type="file"
+          multiple
           accept="image/*" // 이미지만 업로드 허용
           onChange={imageSelectHandler}
         ></input>

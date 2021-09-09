@@ -10,22 +10,29 @@ const fileUnlink = promisify(fs.unlink); // 해당 메소드에 콜백을 넘기
 
 //라우터에 upload 미들웨어를 추가하면 해당 키값(imageTest)의 파일정보를 위에서 dest로 설정한 폴더 경로에 저장한다. ( 한개 파일 업로드)
 //또한 자동으로 req.file에 추출한 이미지 정보를 적재한다.
-imageRouter.post("/", upload.single("image"), async (req, res) => {
+//upload.array : 다중파일 업로더, 최대 5개
+imageRouter.post("/", upload.array("image", 5), async (req, res) => {
   //유저정보, public 유무 확인
   try {
     if (!req.user) throw new Error("권한이 없습니다.");
-    const uploadedImg = await new Image({
-      //string 형태의 id를 objectId타입의 _id에 할당하지만, 몽구스에서 알아서 타입변환하여 처리해준다.
-      user: {
-        _id: req.user.id,
-        name: req.user.name,
-        username: req.user.username,
-      },
-      public: req.body.public,
-      key: req.file.filename,
-      originalFileName: req.file.originalname,
-    }).save();
-    res.json(uploadedImg);
+    const images = await Promise.all(
+      req.files.map(async (file) => {
+        const image = await new Image({
+          //string 형태의 id를 objectId타입의 _id에 할당하지만, 몽구스에서 알아서 타입변환하여 처리해준다.
+          user: {
+            _id: req.user.id,
+            name: req.user.name,
+            username: req.user.username,
+          },
+          public: req.body.public,
+          key: file.filename,
+          originalFileName: file.originalname,
+        }).save();
+
+        return image;
+      })
+    );
+    res.json(images);
   } catch (err) {
     console.log(err);
     res.status(400).json({ message: err.message });

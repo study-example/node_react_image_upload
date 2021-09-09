@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { ImageContext } from "../context/ImageContext";
 import { Link } from "react-router-dom";
@@ -7,15 +7,20 @@ import "./ImageList.css";
 const ImageList = () => {
   const {
     images,
-    myImages,
     isPublic,
     setIsPublic,
-    loaderMoreImages,
     imageLoading,
     imageError,
+    setimageUrl,
   } = useContext(ImageContext);
   const [me] = useContext(AuthContext);
   const elementRef = useRef(null);
+
+  const loaderMoreImages = useCallback(() => {
+    if (images.length === 0 || imageLoading) return;
+    const lastImageId = images[images.length - 1]._id;
+    setimageUrl(`${isPublic ? "" : "/users/me"}/images?lastid=${lastImageId}`);
+  }, [images, imageLoading, isPublic, setimageUrl]);
 
   useEffect(() => {
     if (!elementRef.current) return;
@@ -31,25 +36,15 @@ const ImageList = () => {
     return () => observer.disconnect(); /// 한번 사용한 옵저버를 제거한다. 위로 스크롤 할때 재 조회 동작 제거를 위한 코드
   }, [loaderMoreImages]);
 
-  const imgList = isPublic
-    ? images.map((image, index) => (
-        <Link
-          key={image.key}
-          to={`/images/${image._id}`}
-          ref={index + 5 === images.length ? elementRef : undefined}
-        >
-          <img alt="" src={`http://localhost:5000/uploads/${image.key}`} />
-        </Link>
-      ))
-    : myImages.map((image, index) => (
-        <Link
-          key={image.key}
-          to={`/images/${image._id}`}
-          ref={index + 1 === myImages.length ? elementRef : undefined}
-        >
-          <img alt="" src={`http://localhost:5000/uploads/${image.key}`} />
-        </Link>
-      ));
+  const imgList = images.map((image, index) => (
+    <Link
+      key={image.key}
+      to={`/images/${image._id}`}
+      ref={index + 5 === images.length ? elementRef : undefined}
+    >
+      <img alt="" src={`http://localhost:5000/uploads/${image.key}`} />
+    </Link>
+  ));
 
   return (
     <div>

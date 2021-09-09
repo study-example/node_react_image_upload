@@ -9,9 +9,12 @@ export const ImageProvider = ({ children }) => {
   const [myImages, setMyImages] = useState([]); // 개인이미지
   const [isPublic, setIsPublic] = useState(true);
   const [imageUrl, setimageUrl] = useState("/images");
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [me] = useContext(AuthContext);
 
   useEffect(() => {
+    setImageLoading(true);
     axios
       .get(imageUrl)
       .then((result) => {
@@ -19,6 +22,10 @@ export const ImageProvider = ({ children }) => {
       })
       .catch((err) => {
         console.log(err);
+        setImageError(err);
+      })
+      .finally(() => {
+        setImageLoading(false);
       });
   }, [imageUrl]);
 
@@ -57,6 +64,8 @@ export const ImageProvider = ({ children }) => {
         isPublic,
         setIsPublic,
         loaderMoreImages,
+        imageLoading,
+        imageError,
       }}
     >
       {children}

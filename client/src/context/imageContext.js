@@ -63,7 +63,8 @@ export const ImageProvider = ({ children }) => {
     <ImageContext.Provider
       value={{
         images: isPublic ? images : myImages,
-        setImages: isPublic ? setImages : setMyImages,
+        setImages,
+        setMyImages,
         isPublic,
         setIsPublic,
         setimageUrl,

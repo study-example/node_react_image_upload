@@ -6,7 +6,7 @@ import ProgressBar from "./ProgressBar";
 import { ImageContext } from "../context/ImageContext";
 
 const UploadForm = () => {
-  const { setImages } = useContext(ImageContext);
+  const { setImages, setMyImages } = useContext(ImageContext);
   const [files, setFiles] = useState(null);
   const [previews, setPreviews] = useState([]);
   const [percent, setPercent] = useState(0); // 이미지 업로드 진행 퍼센트
@@ -52,7 +52,10 @@ const UploadForm = () => {
         },
       });
 
-      setImages((prevData) => [...prevData, ...res.data]);
+      if (isPublic) {
+        setImages((prevData) => [...res.data, ...prevData]);
+      }
+      setMyImages((prevData) => [...res.data, ...prevData]);
 
       toast.success("이미지 업로드 성공!");
       setTimeout(() => {

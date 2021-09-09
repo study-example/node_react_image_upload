@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { useParams } from "react-router";
 import { ImageContext } from "../context/ImageContext";
 import { AuthContext } from "../context/AuthContext";
@@ -12,8 +12,33 @@ const ImagePage = () => {
   const { images, setImages, setMyImages } = useContext(ImageContext);
   const [hasLiked, setHasLiked] = useState(false);
   const [me] = useContext(AuthContext);
+  const [image, setImage] = useState();
+  const [error, setError] = useState(false);
+  const imageRef = useRef();
 
-  const image = images.find((image) => image._id === imageId);
+  useEffect(() => {
+    imageRef.current = images.find((image) => image._id === imageId);
+  }, [images, imageId]);
+
+  useEffect(() => {
+    if (imageRef.current) {
+      // 배열에 이미지가 존재할때
+      setImage(imageRef.current);
+    } else {
+      //배열에 이미지가 존재하지 않을때
+      axios
+        .get(`/images/${imageId}`)
+        .then((data) => {
+          setImage(data);
+          setError(false);
+        })
+        .catch((err) => {
+          setError(true);
+          toast.error(err.response.data.message);
+        });
+    }
+  }, [imageId, images]);
+
   useEffect(() => {
     if (me && image && image.likes.includes(me.userId)) {
       setHasLiked(true);
@@ -58,7 +83,9 @@ const ImagePage = () => {
     }
   };
 
-  if (!image) return <h3>loading...</h3>;
+  if (error) return <h3>Error...</h3>;
+  else if (!image) return <h3>Loading...</h3>;
+
   return (
     <div>
       <h3>Image Page - {imageId}</h3>
@@ -67,7 +94,7 @@ const ImagePage = () => {
         src={`http://localhost:5000/uploads/${image.key}`}
         alt={imageId}
       />
-      <span>좋아요 {image.likes.length}</span>
+      <span>좋아요 {image?.likes?.length}</span>
       {me && image.user._id === me.userId && (
         <button
           style={{ float: "right", marginLeft: 10 }}

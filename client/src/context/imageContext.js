@@ -41,7 +41,6 @@ export const ImageProvider = ({ children }) => {
   }, [imageUrl, isPublic]);
 
   useEffect(() => {
-    const sessionId = localStorage.getItem("sessionId");
     if (me) {
       setTimeout(() => {
         axios

@@ -8,18 +8,19 @@ export const ImageProvider = ({ children }) => {
   const [images, setImages] = useState([]); // 공개이미지
   const [myImages, setMyImages] = useState([]); // 개인이미지
   const [isPublic, setIsPublic] = useState(true);
+  const [imageUrl, setimageUrl] = useState("/images");
   const [me] = useContext(AuthContext);
 
   useEffect(() => {
     axios
-      .get("/images")
+      .get(imageUrl)
       .then((result) => {
-        setImages(result.data);
+        setImages((prevData) => [...prevData, ...result.data]);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, [imageUrl]);
 
   useEffect(() => {
     const sessionId = localStorage.getItem("sessionId");
@@ -40,6 +41,12 @@ export const ImageProvider = ({ children }) => {
     }
   }, [me]);
 
+  const loaderMoreImages = () => {
+    if (images.length === 0) return;
+    const lastImageId = images[images.length - 1]._id;
+    setimageUrl(`/images?lastid=${lastImageId}`);
+  };
+
   return (
     <ImageContext.Provider
       value={{
@@ -49,6 +56,7 @@ export const ImageProvider = ({ children }) => {
         setMyImages,
         isPublic,
         setIsPublic,
+        loaderMoreImages,
       }}
     >
       {children}

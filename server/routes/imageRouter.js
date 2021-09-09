@@ -11,7 +11,7 @@ const fileUnlink = promisify(fs.unlink); // 해당 메소드에 콜백을 넘기
 //라우터에 upload 미들웨어를 추가하면 해당 키값(imageTest)의 파일정보를 위에서 dest로 설정한 폴더 경로에 저장한다. ( 한개 파일 업로드)
 //또한 자동으로 req.file에 추출한 이미지 정보를 적재한다.
 //upload.array : 다중파일 업로더, 최대 5개
-imageRouter.post("/", upload.array("image", 5), async (req, res) => {
+imageRouter.post("/", upload.array("image", 100), async (req, res) => {
   //유저정보, public 유무 확인
   try {
     if (!req.user) throw new Error("권한이 없습니다.");
@@ -41,8 +41,24 @@ imageRouter.post("/", upload.array("image", 5), async (req, res) => {
 
 imageRouter.get("/", async (req, res) => {
   // plublic 한 이미지만 제공
-  const images = await Image.find({ public: true });
-  res.json(images);
+
+  try {
+    const { lastid } = req.query;
+    if (lastid && !mongoose.isValidObjectId(lastid))
+      throw new Error("invalid lastid");
+
+    const images = await Image.find(
+      lastid ? { public: true, _id: { $lt: lastid } } : { public: true }
+    )
+      .sort({
+        _id: -1,
+      })
+      .limit(20);
+    res.json(images);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: err.message });
+  }
 });
 
 imageRouter.delete("/:imageId", async (req, res) => {

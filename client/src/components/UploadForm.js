@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import axios from "axios";
 import "./UploadForm.css";
 import { toast } from "react-toastify";
@@ -11,6 +11,7 @@ const UploadForm = () => {
   const [previews, setPreviews] = useState([]);
   const [percent, setPercent] = useState(0); // 이미지 업로드 진행 퍼센트
   const [isPublic, setIsPublic] = useState(true); // 이미지 공개여부
+  const inputRef = useRef();
 
   //파일 선택시 이벤트 헨들러
   const imageSelectHandler = async (e) => {
@@ -61,12 +62,14 @@ const UploadForm = () => {
       setTimeout(() => {
         setPercent(0);
         setPreviews([]);
+        inputRef.current.value = null;
       }, 3000);
     } catch (err) {
       toast.error(err.response.data.message);
       setPercent(0);
       setPreviews([]);
       console.error(err);
+      inputRef.current.value = null;
     }
   };
 
@@ -95,6 +98,9 @@ const UploadForm = () => {
       <div className="file-dropper ">
         {fileName}
         <input
+          ref={(ref) => {
+            inputRef.current = ref;
+          }}
           id="image"
           type="file"
           multiple

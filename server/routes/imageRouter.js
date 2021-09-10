@@ -25,7 +25,8 @@ imageRouter.post("/", upload.array("image", 100), async (req, res) => {
             username: req.user.username,
           },
           public: req.body.public,
-          key: file.filename,
+          // key: file.filename,  // 백엔드 서버에 저장용
+          key: file.key.replace("raw/", ""), // aws s3 용
           originalFileName: file.originalname,
         }).save();
 

@@ -1,12 +1,22 @@
 const multer = require("multer"); // 파일 업로드 모듈
 const { v4: uuid } = require("uuid"); // 파일 업로드시 새로운 파일명에 사용될 uuid , 내부에 여러개의 버전이 있다.(uuid 타입인듯하다.)
 const mime = require("mime-types"); // 업로드된 파일의 확장자를 추출 -> 실제 업로드시 누락되는 확장자를 추가 목적
+const multerS3 = require("multer-s3"); // aws s3 연동 라이브러리
+const { s3 } = require("../aws"); // aws s3 정책 정보
 
 // multer 설정 ( 업로드 폴더 경로 필수 설정)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "./uploads"), // 업로드 파일 저장경로
-  filename: (req, file, cb) =>
-    cb(null, `${uuid()}.${mime.extension(file.mimetype)}`), // 업로드 파일 명 : uuid + 원본 파일 확장자
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => cb(null, "./uploads"), // 업로드 파일 저장경로
+//   filename: (req, file, cb) =>
+//     cb(null, `${uuid()}.${mime.extension(file.mimetype)}`), // 업로드 파일 명 : uuid + 원본 파일 확장자
+// });
+
+//s3 저장 설정
+const storage = multerS3({
+  s3,
+  bucket: "hanumoka-image-upload-tutorial",
+  key: (req, file, cb) =>
+    cb(null, `raw/${uuid()}.${mime.extension(file.mimetype)}`), // s3 버킷의 저장 경로 + 업로드 파일 명 : uuid + 원본 파일 확장자
 });
 
 const upload = multer({

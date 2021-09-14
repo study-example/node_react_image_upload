@@ -42,7 +42,11 @@ const ImageList = () => {
       to={`/images/${image._id}`}
       ref={index + 5 === images.length ? elementRef : undefined}
     >
-      <img alt="" src={`http://localhost:5000/uploads/${image.key}`} />
+      {/* <img alt="" src={`http://localhost:5000/uploads/${image.key}`} /> */}
+      <img
+        alt=""
+        src={`https://hanumoka-image-upload-tutorial.s3.ap-northeast-2.amazonaws.com/raw/${image.key}`}
+      />
     </Link>
   ));
 

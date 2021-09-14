@@ -5,6 +5,7 @@ const { upload } = require("../middleware/imageUpload");
 const fs = require("fs");
 const { promisify } = require("util"); // 비동기함수를 promise 형태의 평션으로 변환을 지원한다.
 const mongoose = require("mongoose");
+const { s3 } = require("../aws");
 
 const fileUnlink = promisify(fs.unlink); // 해당 메소드에 콜백을 넘기는 대신에 await를 사용할수 있게 된다?
 
@@ -91,15 +92,22 @@ imageRouter.delete("/:imageId", async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.imageId))
       throw new Error("올바르지 않은 이미지 id입니다.");
 
-    // fs.unlink("./test.jpeg", (err) => {});
-
     const image = await Image.findOneAndDelete({ _id: req.params.imageId });
 
     if (!image) {
       return res.json({ message: "요청하신 이미지는 이미 삭제 되었습니다." });
     }
 
-    await fileUnlink(`./uploads/${image.key}`);
+    //await fileUnlink(`./uploads/${image.key}`); // 백엔드 서버 파일 시스템에서 파일 삭제
+    s3.deleteObject(
+      {
+        Bucket: "hanumoka-image-upload-tutorial",
+        Key: `raw/${image.key}`,
+      },
+      (error) => {
+        if (error) throw error;
+      }
+    );
 
     res.json({ message: "요청하신 이미지가 삭제 되었습니다.", image });
   } catch (err) {

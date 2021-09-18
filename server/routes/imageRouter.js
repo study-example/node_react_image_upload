@@ -5,41 +5,103 @@ const { upload } = require("../middleware/imageUpload");
 const fs = require("fs");
 const { promisify } = require("util"); // 비동기함수를 promise 형태의 평션으로 변환을 지원한다.
 const mongoose = require("mongoose");
-const { s3 } = require("../aws");
+const { s3, getSignedUrl } = require("../aws");
+const { v4: uuid } = require("uuid"); // 파일 업로드시 새로운 파일명에 사용될 uuid , 내부에 여러개의 버전이 있다.(uuid 타입인듯하다.)
+const mime = require("mime-types"); // 업로드된 파일의 확장자를 추출 -> 실제 업로드시 누락되는 확장자를 추가 목적
 
-const fileUnlink = promisify(fs.unlink); // 해당 메소드에 콜백을 넘기는 대신에 await를 사용할수 있게 된다?
+//const fileUnlink = promisify(fs.unlink); // 해당 메소드에 콜백을 넘기는 대신에 await를 사용할수 있게 된다?
+imageRouter.post("/presigned", async (req, res) => {
+  try {
+    if (!req.user) {
+      throw new Error("권한이 없습니다");
+    }
+    const { contentTypes } = req.body;
+    if (!Array.isArray(contentTypes)) {
+      throw new Error("invalid contentTypes");
+    }
+    console.log("프리사인드");
+    const presignedData = await Promise.all(
+      contentTypes.map(async (contentType) => {
+        const imageKey = `${uuid()}.${mime.extension(contentType)}`;
+        const key = `raw/${imageKey}`;
+        const presigned = await getSignedUrl({ key });
+        console.log("프리사인드..");
+        console.log(presigned);
+        return { imageKey, presigned };
+      })
+    );
+    return res.json(presignedData);
+  } catch (err) {
+    console.log("?");
+    console.log(err);
+    res.status(400).json({
+      message: err.message,
+    });
+  }
+});
 
-//라우터에 upload 미들웨어를 추가하면 해당 키값(imageTest)의 파일정보를 위에서 dest로 설정한 폴더 경로에 저장한다. ( 한개 파일 업로드)
-//또한 자동으로 req.file에 추출한 이미지 정보를 적재한다.
-//upload.array : 다중파일 업로더, 최대 5개
+//s3 presigned 적용
 imageRouter.post("/", upload.array("image", 100), async (req, res) => {
   //유저정보, public 유무 확인
   try {
     if (!req.user) throw new Error("권한이 없습니다.");
-    const images = await Promise.all(
-      req.files.map(async (file) => {
-        const image = await new Image({
+    const { images, public } = req.body;
+
+    const imageDocs = await Promise.all(
+      images.map((image) =>
+        new Image({
           //string 형태의 id를 objectId타입의 _id에 할당하지만, 몽구스에서 알아서 타입변환하여 처리해준다.
           user: {
             _id: req.user.id,
             name: req.user.name,
             username: req.user.username,
           },
-          public: req.body.public,
+          public,
           // key: file.filename,  // 백엔드 서버에 저장용
-          key: file.key.replace("raw/", ""), // aws s3 용
-          originalFileName: file.originalname,
-        }).save();
-
-        return image;
-      })
+          key: image.imageKey,
+          originalFileName: image.originalname,
+        }).save()
+      )
     );
-    res.json(images);
+
+    res.json(imageDocs);
   } catch (err) {
     console.log(err);
     res.status(400).json({ message: err.message });
   }
 });
+
+//라우터에 upload 미들웨어를 추가하면 해당 키값(imageTest)의 파일정보를 위에서 dest로 설정한 폴더 경로에 저장한다. ( 한개 파일 업로드)
+//또한 자동으로 req.file에 추출한 이미지 정보를 적재한다.
+//upload.array : 다중파일 업로더, 최대 5개
+// imageRouter.post("/", upload.array("image", 100), async (req, res) => {
+//   //유저정보, public 유무 확인
+//   try {
+//     if (!req.user) throw new Error("권한이 없습니다.");
+//     const images = await Promise.all(
+//       req.files.map(async (file) => {
+//         const image = await new Image({
+//           //string 형태의 id를 objectId타입의 _id에 할당하지만, 몽구스에서 알아서 타입변환하여 처리해준다.
+//           user: {
+//             _id: req.user.id,
+//             name: req.user.name,
+//             username: req.user.username,
+//           },
+//           public: req.body.public,
+//           // key: file.filename,  // 백엔드 서버에 저장용
+//           key: file.key.replace("raw/", ""), // aws s3 용
+//           originalFileName: file.originalname,
+//         }).save();
+
+//         return image;
+//       })
+//     );
+//     res.json(images);
+//   } catch (err) {
+//     console.log(err);
+//     res.status(400).json({ message: err.message });
+//   }
+// });
 
 imageRouter.get("/", async (req, res) => {
   // plublic 한 이미지만 제공

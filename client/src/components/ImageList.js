@@ -52,8 +52,11 @@ const ImageList = () => {
         alt=""
         src={`https://hanumoka-image-upload-tutorial.s3.ap-northeast-2.amazonaws.com/w140/${image.key}`}
       /> */}
-      <Image
+      {/* <Image
         imageUrl={`https://hanumoka-image-upload-tutorial.s3.ap-northeast-2.amazonaws.com/w140/${image.key}`}
+      /> */}
+      <Image
+        imageUrl={`https://d3knjrjwpqq8d1.cloudfront.net/w140/${image.key}`}
       />
     </Link>
   ));

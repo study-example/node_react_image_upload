@@ -11,6 +11,7 @@ const UploadForm = () => {
   const [previews, setPreviews] = useState([]);
   const [percent, setPercent] = useState([]); // 이미지 업로드 진행 퍼센트
   const [isPublic, setIsPublic] = useState(true); // 이미지 공개여부
+  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef();
 
   //파일 선택시 이벤트 헨들러
@@ -40,11 +41,11 @@ const UploadForm = () => {
   const onSubmitV2 = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       //1. presigned 데이터를 받아온다.
       const presignedData = await axios.post("/images/presigned", {
         contentTypes: [...files].map((file) => file.type),
       });
-
       //2 presigned 을 사용해서 s3 에 업로드 한다.
       await Promise.all(
         [...files].map((file, index) => {
@@ -88,6 +89,7 @@ const UploadForm = () => {
         setPercent([]);
         setPreviews([]);
         inputRef.current.value = null;
+        setIsLoading(false);
       }, 3000);
     } catch (err) {
       console.error(err);
@@ -95,6 +97,7 @@ const UploadForm = () => {
       setPercent([]);
       setPreviews([]);
       inputRef.current.value = null;
+      setIsLoading(false);
     }
   };
 
@@ -190,6 +193,7 @@ const UploadForm = () => {
       <label htmlFor="public-check">비공개</label>
       <button
         type="submit"
+        disabled={isLoading}
         style={{
           width: "100%",
           height: "40px",

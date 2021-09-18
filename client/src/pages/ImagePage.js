@@ -94,9 +94,14 @@ const ImagePage = () => {
         src={`http://localhost:5000/uploads/${image.key}`}
         alt={imageId}
       /> */}
-      <img
+      {/* <img
         style={{ width: "100%" }}
         src={`https://hanumoka-image-upload-tutorial.s3.ap-northeast-2.amazonaws.com/raw/${image.key}`}
+        alt={imageId}
+      /> */}
+      <img
+        style={{ width: "100%" }}
+        src={`https://hanumoka-image-upload-tutorial.s3.ap-northeast-2.amazonaws.com/w600/${image.key}`}
         alt={imageId}
       />
       <span>좋아요 {image?.likes?.length}</span>

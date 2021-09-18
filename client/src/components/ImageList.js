@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { ImageContext } from "../context/ImageContext";
 import { Link } from "react-router-dom";
 import "./ImageList.css";
+import Image from "./Image";
 
 const ImageList = () => {
   const {
@@ -43,9 +44,16 @@ const ImageList = () => {
       ref={index + 5 === images.length ? elementRef : undefined}
     >
       {/* <img alt="" src={`http://localhost:5000/uploads/${image.key}`} /> */}
-      <img
+      {/* <img
         alt=""
         src={`https://hanumoka-image-upload-tutorial.s3.ap-northeast-2.amazonaws.com/raw/${image.key}`}
+      /> */}
+      {/* <img
+        alt=""
+        src={`https://hanumoka-image-upload-tutorial.s3.ap-northeast-2.amazonaws.com/w140/${image.key}`}
+      /> */}
+      <Image
+        imageUrl={`https://hanumoka-image-upload-tutorial.s3.ap-northeast-2.amazonaws.com/w140/${image.key}`}
       />
     </Link>
   ));

@@ -98,42 +98,42 @@ const UploadForm = () => {
     }
   };
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    for (let file of files) {
-      formData.append("image", file);
-    }
+  // const onSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const formData = new FormData();
+  //   for (let file of files) {
+  //     formData.append("image", file);
+  //   }
 
-    formData.append("public", isPublic);
-    try {
-      const res = await axios.post("/images", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        onUploadProgress: (e) => {
-          // 업로드 진행사항을 표시하게 도와주는 axios 옵셤
-          setPercent(Math.round((100 * e.loaded) / e.total));
-        },
-      });
+  //   formData.append("public", isPublic);
+  //   try {
+  //     const res = await axios.post("/images", formData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //       onUploadProgress: (e) => {
+  //         // 업로드 진행사항을 표시하게 도와주는 axios 옵셤
+  //         setPercent(Math.round((100 * e.loaded) / e.total));
+  //       },
+  //     });
 
-      if (isPublic) {
-        setImages((prevData) => [...res.data, ...prevData]);
-      }
-      setMyImages((prevData) => [...res.data, ...prevData]);
+  //     if (isPublic) {
+  //       setImages((prevData) => [...res.data, ...prevData]);
+  //     }
+  //     setMyImages((prevData) => [...res.data, ...prevData]);
 
-      toast.success("이미지 업로드 성공!");
-      setTimeout(() => {
-        setPercent([]);
-        setPreviews([]);
-        inputRef.current.value = null;
-      }, 3000);
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response.data.message);
-      setPercent([]);
-      setPreviews([]);
-      inputRef.current.value = null;
-    }
-  };
+  //     toast.success("이미지 업로드 성공!");
+  //     setTimeout(() => {
+  //       setPercent([]);
+  //       setPreviews([]);
+  //       inputRef.current.value = null;
+  //     }, 3000);
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error(err.response.data.message);
+  //     setPercent([]);
+  //     setPreviews([]);
+  //     inputRef.current.value = null;
+  //   }
+  // };
 
   const previewImages = previews.map((preview, index) => (
     <div key={index}>
